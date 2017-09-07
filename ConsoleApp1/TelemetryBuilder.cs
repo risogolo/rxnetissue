@@ -14,7 +14,7 @@ namespace ConsoleApp1
         private static ReplaySubject<ITelemetry> subject = null;
         public static void Compose<T>(T telemetry) where T : ITelemetry
         {
-            if (telemetry.Name == "Vdr1") //resp mastertimestampid
+            if (telemetry.Name == "Vdr1") //mastertimestampid
             {
                 Tdr tdr = new Tdr();
           
@@ -28,6 +28,19 @@ namespace ConsoleApp1
                 .Subscribe(
                     x =>
                     {
+                        /* this block of code is a workaround but I don't want to know about types here
+                        switch((object)x)
+                        {
+                            case Vdr vdr:
+                            tdr.Compose(vdr as Vdr);
+                            break;
+
+                            case Lpr lpr:
+                            tdr.Compose(lpr as Lpr);
+                            break;
+                        }
+                        */
+
                         tdr.Compose(x);
                     },
                     e => { Console.WriteLine(e.Message); },
