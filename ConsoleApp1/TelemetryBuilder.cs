@@ -1,60 +1,43 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Text;
 
 namespace ConsoleApp1
 {
-    public class TelemetryBuilder
+    public static class TelemetryBuilder
     {
-        private static List<ISubject<ITelemetry>> list;
-
-        public TelemetryBuilder()
+        private static List<ISubject<ITelemetry>> _list = new List<ISubject<ITelemetry>>();
+        private static Dictionary<Guid, Tdr> _tdrs = new Dictionary<Guid, Tdr>();
+        private static ReplaySubject<ITelemetry> subject = null;
+        public static void Compose<T>(T telemetry) where T : ITelemetry
         {
-            list = new List<ISubject<ITelemetry>>();
-        }
-
-        public void Compose<T>(T telemetry) where T : ITelemetry
-        {
-            Subject<ITelemetry> subject = null;
-
-            // ReplaySubject<ITelemetry> replay = null;
-            // AsyncSubject<ITelemetry> async = null;
-
-            //replay = new ReplaySubject<ITelemetry>();
-
-            if (telemetry.Name == "Vdr")
+            if (telemetry.Name == "Vdr1") //resp mastertimestampid
             {
-                var o = Observable.Range(1, 10);
-                //var c = Observable.Return(1).SelectMany()
+                Tdr tdr = new Tdr();
+          
+                var vdrko = telemetry as Vdr;
+                subject = new ReplaySubject<ITelemetry>(TimeSpan.FromMinutes(1));
 
-                subject = new Subject<ITelemetry>();
-
-                subject
-                    .TakeWhile(x => x.Timestamp < DateTime.Now)
-                    .Take(5)
-                    .Subscribe(
-                        x => { Console.WriteLine($"Name {x.Name} timestamp {x.Timestamp}"); },
-                        e => { },
-                        () => { Console.WriteLine("Complete"); });
-
-                list.Add(subject);
+                var pokus = subject
+                .TakeUntil(vdrko.Timestamp.Add(TimeSpan.FromSeconds(5)))
+                .Where(x => string.IsNullOrEmpty(x.Status))
+                .Do(x => { x.Status = "Processed " + tdr.Identifier; })
+                .Subscribe(
+                    x =>
+                    {
+                        tdr.Compose(x);
+                    },
+                    e => { Console.WriteLine(e.Message); },
+                    () =>
+                    {
+                        tdr.Completed();
+                    });
             }
 
-           // Observable.Do(() => Console.WriteLine(""));
-
-            //Observable.Return(telemetry);
-
-
-            while (true)
-            {
-                if (subject != null && !subject.IsDisposed)
-                {
-                    Console.WriteLine(telemetry.GetType());
-                    list.ForEach(x => subject.OnNext(telemetry));
-                }
-            }
+            subject.OnNext(telemetry);
         }
     }
 }

@@ -6,5 +6,7 @@ namespace ConsoleApp1
     {
         public DateTime Timestamp { get; set; }
         public string Name { get; set; }
+        public string Status { get; set;}
+        public int Koeficient { get; set;}
     }
 }

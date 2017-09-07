@@ -9,5 +9,7 @@ namespace ConsoleApp1
         public string Name { get; set; }
 
         public string NiecoNaviac { get; set; } //property naviac oproti interfacu
+        public string Status { get; set; }
+        public int Koeficient { get; set; }
     }
 }
