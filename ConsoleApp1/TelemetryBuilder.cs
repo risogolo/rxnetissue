@@ -12,6 +12,7 @@ namespace ConsoleApp1
         private static List<ISubject<ITelemetry>> _list = new List<ISubject<ITelemetry>>();
         private static Dictionary<Guid, Tdr> _tdrs = new Dictionary<Guid, Tdr>();
         private static ReplaySubject<ITelemetry> subject = null;
+        
         public static void Compose<T>(T telemetry) where T : ITelemetry
         {
             if (telemetry.Name == "Vdr1") //mastertimestampid
@@ -41,6 +42,7 @@ namespace ConsoleApp1
                         }
                         */
 
+                        //if you uncomment above block please comment next line then
                         tdr.Compose(x);
                     },
                     e => { Console.WriteLine(e.Message); },
